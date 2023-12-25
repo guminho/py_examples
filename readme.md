@@ -8,5 +8,7 @@ python3 -m venv venv
 
 ## usage
 ```bash
-python test_jwt.py
+cd jwt2
+bash genkey.sh
+python main.py
 ```

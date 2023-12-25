@@ -1,0 +1,1 @@
+ssh-keygen -t rsa -m PEM -b 1024 -f KEY
