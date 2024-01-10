@@ -25,3 +25,14 @@ hypercorn server:app -c hyper.toml
 # client
 curl https://localhost:8000/ -i -k
 ```
+
+```bash
+cd sse
+
+# server
+uvicorn server:app --log-config=log-config.yml
+
+# client
+curl localhost:8000?name=world -X POST
+python client.py
+```

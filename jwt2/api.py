@@ -1,7 +1,6 @@
 import base64
 
 import orjson
-
 from algo import Algo
 
 

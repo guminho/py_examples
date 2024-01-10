@@ -1,7 +1,6 @@
-import jwt
-
 import algo
 import api
+import jwt
 
 # keys
 secret_key = b"world"
