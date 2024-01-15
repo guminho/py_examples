@@ -1,24 +1,25 @@
 import asyncio
 
 import orjson
-from httpx import AsyncClient
-from httpx_sse import aconnect_sse
+from aiohttp import ClientSession
+from aiohttp_sse_client2.client import EventSource
 
 
 async def main():
-    client = AsyncClient(base_url="http://localhost:8000")
+    client = ClientSession("http://localhost:8000")
     params = {"name": "world"}
-    async with aconnect_sse(
+    async with EventSource(
         url="/",
-        method="POST",
+        option=dict(method="POST"),
         params=params,
-        client=client,
+        session=client,
     ) as event_source:
-        async for sse in event_source.aiter_sse():
+        async for sse in event_source:
             if sse.data.startswith("[DONE]"):
                 break
             else:
                 print("data:", [orjson.loads(sse.data)])
+    await client.close()
 
 
 asyncio.run(main())

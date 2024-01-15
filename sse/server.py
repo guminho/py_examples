@@ -21,7 +21,7 @@ async def hello(name: str):
         try:
             async for data in gen(name):
                 yield ServerSentEvent(orjson.dumps(data).decode(), event="data")
-            yield ServerSentEvent(event="end")
+            yield ServerSentEvent("[DONE]", event="end")
         except BaseException as exc:
             _logger.error("stream error", exc_info=exc)
 
