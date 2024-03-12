@@ -10,16 +10,12 @@ python3 -m venv venv
 ```bash
 cd jwt2
 bash genkey.sh
-
-# run
 python main.py
 ```
 
 ```bash
 cd h2
 bash gencert.sh
-
-# server
 hypercorn server:app -c hyper.toml
 
 # client
@@ -28,11 +24,15 @@ curl https://localhost:8000/ -i -k
 
 ```bash
 cd sse
-
-# server
 uvicorn server:app --log-config=log-config.yml
 
 # client
-curl localhost:8000?name=world -X POST
+curl localhost:8000?name=world -i -X POST
 python client.py
+```
+
+```bash
+cd sched
+python blocking.py
+python thread.py
 ```
