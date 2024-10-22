@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+
+prometheus_client
+prometheus-fastapi-instrumentator
+
+opentelemetry-distro
+opentelemetry-exporter-otlp-proto-http
+opentelemetry-exporter-prometheus
+opentelemetry-instrumentation-fastapi
