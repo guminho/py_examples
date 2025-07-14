@@ -1,25 +1,21 @@
 import asyncio
+from datetime import timedelta
 
-import orjson
-from aiohttp import ClientSession
 from aiohttp_sse_client2.client import EventSource
 
 
 async def main():
-    client = ClientSession("http://localhost:8000")
+    url = "http://localhost:8000/chat"
     params = {"name": "world"}
-    async with EventSource(
-        url="/",
+    event_source = EventSource(
+        url=url,
         option=dict(method="POST"),
         params=params,
-        session=client,
-    ) as event_source:
+        reconnection_time=timedelta(seconds=0.2),
+    )
+    async with event_source:
         async for sse in event_source:
-            if sse.data.startswith("[DONE]"):
-                break
-            else:
-                print("data:", [orjson.loads(sse.data)])
-    await client.close()
+            print(sse.data, sse.message)
 
 
 asyncio.run(main())

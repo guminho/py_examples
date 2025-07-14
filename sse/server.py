@@ -1,28 +1,22 @@
 import asyncio
-import logging
 
-import orjson
 from fastapi import FastAPI
-from sse_starlette.sse import EventSourceResponse, ServerSentEvent
+from sse_starlette import EventSourceResponse
+from sse_starlette import JSONServerSentEvent as SSE
 
-_logger = logging.getLogger(__name__)
 app = FastAPI()
 
 
-async def gen(name: str):
-    for i in range(10):
-        await asyncio.sleep(0.2)
-        yield dict(hello=f"{name}-{i}")
+async def gen():
+    for i in range(5):
+        await asyncio.sleep(0.1)
+        yield {"delta": f"content-{i}"}
 
 
-@app.post("/")
-async def hello(name: str):
-    async def _stream():
-        try:
-            async for data in gen(name):
-                yield ServerSentEvent(orjson.dumps(data).decode(), event="data")
-            yield ServerSentEvent("[DONE]", event="end")
-        except BaseException as exc:
-            _logger.error("stream error", exc_info=exc)
+@app.post("/chat")
+async def chat():
+    async def wrap():
+        async for msg in gen():
+            yield SSE(msg)
 
-    return EventSourceResponse(_stream())
+    return EventSourceResponse(wrap())

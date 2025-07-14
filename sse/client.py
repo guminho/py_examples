@@ -1,24 +1,15 @@
-import asyncio
+from httpx import Client
+from httpx_sse import connect_sse
 
-import orjson
-from httpx import AsyncClient
-from httpx_sse import aconnect_sse
+cli = Client()
 
 
-async def main():
-    client = AsyncClient(base_url="http://localhost:8000")
+def main():
+    url = "http://localhost:8000/chat"
     params = {"name": "world"}
-    async with aconnect_sse(
-        url="/",
-        method="POST",
-        params=params,
-        client=client,
-    ) as event_source:
-        async for sse in event_source.aiter_sse():
-            if sse.data.startswith("[DONE]"):
-                break
-            else:
-                print("data:", [orjson.loads(sse.data)])
+    with connect_sse(cli, "POST", url, params=params) as event_source:
+        for sse in event_source.iter_sse():
+            print(sse.json())
 
 
-asyncio.run(main())
+main()
