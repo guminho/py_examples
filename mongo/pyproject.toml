@@ -1,0 +1,11 @@
+[project]
+name = "mongo"
+version = "0.1.0"
+description = "Beanie FastAPI Demo"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "beanie>=2.0.0",
+    "fastapi>=0.119.1",
+    "uvicorn[standard]>=0.38.0",
+]
