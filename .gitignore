@@ -132,3 +132,5 @@ dmypy.json
 KEY
 KEY.pub
 *.pem
+*.pth
+*.mar

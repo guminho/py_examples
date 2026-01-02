@@ -1,0 +1,7 @@
+services:
+  serve:
+    image: pytorch/torchserve:latest-cpu
+    network_mode: host  # port 8080,8081
+    volumes:
+      - ./model-store:/home/model-server/model-store
+      - ./config.properties:/home/model-server/config.properties
