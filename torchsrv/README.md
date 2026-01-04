@@ -1,4 +1,4 @@
-# TorchServe Example
+# TorchServe Examples
 
 ## ref
 

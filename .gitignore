@@ -132,5 +132,7 @@ dmypy.json
 KEY
 KEY.pub
 *.pem
+
 *.pth
-*.mar
+torchsrv/model-store
+tritonsrv/model_repository
