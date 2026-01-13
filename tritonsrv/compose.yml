@@ -1,0 +1,7 @@
+services:
+  serve:
+    image: nvcr.io/nvidia/tritonserver:25.10-py3
+    network_mode: host  # port 8000,8001,8002
+    command: ["tritonserver", "--model-repository=/models"]
+    volumes:
+      - ./model_repository:/models

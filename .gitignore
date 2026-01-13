@@ -132,3 +132,8 @@ dmypy.json
 KEY
 KEY.pub
 *.pem
+
+*.pth
+torchsrv/model-store
+tritonsrv/model_repository
+uv.lock
