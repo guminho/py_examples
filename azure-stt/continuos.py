@@ -19,10 +19,12 @@ def run():
     audio_cfg = AudioConfig(stream=istream)
     rec = SpeechRecognizer(speech_cfg, audio_cfg)
     rec.properties.set_property(
-        PropertyId.Speech_SegmentationSilenceTimeoutMs, "400"
+        PropertyId.Speech_SegmentationSilenceTimeoutMs,
+        "400",
     )  # '100'-'5000'ms, '500' default
     rec.properties.set_property(
-        PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs, "30000"
+        PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs,
+        "30000",
     )  # '15000'ms default
 
     done = False
@@ -32,8 +34,8 @@ def run():
         nonlocal done
         done = True
 
-    rec.recognizing.connect(lambda evt: print(f"RECOGNIZING: {evt.result.text!r}"))
-    rec.recognized.connect(lambda evt: print(f"RECOGNIZED: {evt.result.text!r}"))
+    rec.recognizing.connect(lambda evt: print(f"chunk:{evt.result.text!r}"))
+    rec.recognized.connect(lambda evt: print(f"final:{evt.result.json}"))
     rec.session_stopped.connect(stop_cb)
     rec.canceled.connect(stop_cb)
 

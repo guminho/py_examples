@@ -19,6 +19,7 @@ def run():
 
     res = rec.recognize_once()
 
+    print(res.json)
     if res.reason == ResultReason.RecognizedSpeech:
         print("Text:", repr(res.text))
     elif res.reason == ResultReason.NoMatch:
