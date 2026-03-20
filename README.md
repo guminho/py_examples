@@ -11,7 +11,7 @@ A curated collection of Python examples and architectural patterns, ranging from
 | **12-Factor App** | Best practices for building cloud-native apps | [12-Factor Notes](12factor.md) |
 | **ORM Comparison** | Detailed comparison of Python ORMs | [ORM Guide](orm.md) |
 | **Security** | JWT generation and validation | [JWT2](jwt2/) |
-| **Protocols** | HTTP/2 and Server-Sent Events (SSE) | [H2](h2/), [SSE](sse/) |
+| **Protocols** | HTTP/2 and Server-Sent Events (SSE) | [H2](h2-examples/), [SSE](sse/) |
 | **Storage** | MongoDB integration | [Mongo](mongo/) |
 | **Task Scheduling** | Blocking and threaded schedulers | [Sched](sched/) |
 | **Audio** | Audio processing examples | [Audios](audios/) |

@@ -1,0 +1,14 @@
+[project]
+name = "prom"
+version = "0.1.0"
+description = "Prometheus observability examples"
+dependencies = [
+    "fastapi>=0.128.0",
+    "uvicorn[standard]>=0.34.0",
+    "prometheus_client>=0.21.1",
+    "prometheus-fastapi-instrumentator>=7.0.2",
+    "opentelemetry-distro>=0.45b0",
+    "opentelemetry-exporter-otlp-proto-http>=1.24.0",
+    "opentelemetry-exporter-prometheus>=0.45b0",
+    "opentelemetry-instrumentation-fastapi>=0.45b0",
+]

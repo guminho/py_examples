@@ -1,0 +1,8 @@
+[project]
+name = "jwt2"
+version = "0.1.0"
+description = "JWT security examples"
+dependencies = [
+    "orjson>=3.10.15",
+    "pyjwt[crypto]>=2.10.1",
+]

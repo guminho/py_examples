@@ -1,0 +1,7 @@
+[project]
+name = "sched"
+version = "0.1.0"
+description = "Task scheduling examples"
+dependencies = [
+    "schedule>=1.2.2",
+]

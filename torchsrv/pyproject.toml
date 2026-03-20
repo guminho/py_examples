@@ -1,0 +1,5 @@
+[project]
+name = "torchsrv"
+version = "0.1.0"
+description = "TorchServe examples and scripts"
+dependencies = []

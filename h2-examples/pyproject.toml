@@ -1,0 +1,7 @@
+[project]
+name = "h2-examples"
+version = "0.1.0"
+description = "HTTP/2 examples"
+dependencies = [
+    "quart>=0.19.9",
+]

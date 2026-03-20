@@ -1,0 +1,8 @@
+[project]
+name = "tritonsrv"
+version = "0.1.0"
+description = "Triton Inference Server client examples"
+dependencies = [
+    "numpy>=2.2.3",
+    "tritonclient[grpc]>=2.55.0",
+]

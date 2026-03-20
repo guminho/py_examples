@@ -1,9 +1,7 @@
 [project]
 name = "azure-stt"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
-requires-python = ">=3.13"
+description = "Azure Speech-to-Text examples"
 dependencies = [
     "azure-cognitiveservices-speech>=1.48.2",
 ]
