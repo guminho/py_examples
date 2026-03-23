@@ -1,86 +1,124 @@
 import asyncio
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from time import monotonic
 
 import aiohttp
-import geventhttpclient
 import httpx
 import niquests
 import pycurl_requests
 import requests
 import urllib3
 
-NUM = 1000
-URL = "http://localhost:8000/hello/10"
-TMP = "{:11}:{:<7}:{}"
+URL = "http://localhost:8000/hello/{num}"
+NUM_REQUESTS = 60
+REPEAT = 5
+
+_pycurl_thread_local = threading.local()
 
 
-def test(name, make_sess, runner, num=2):
-    with make_sess() as sess:
+def get_pycurl_session():
+    if not hasattr(_pycurl_thread_local, "sess"):
+        _pycurl_thread_local.sess = pycurl_requests.Session()
+    return _pycurl_thread_local.sess
+
+
+def benchmark_sync(name, sess, run_func):
+    with ThreadPoolExecutor(max_workers=NUM_REQUESTS) as executor:
         tik = monotonic()
-        for _ in range(num):
-            out = runner(sess)
+        for _ in range(REPEAT):
+            list(executor.map(lambda n: run_func(sess, n), range(NUM_REQUESTS)))
         tok = monotonic()
-    print(TMP.format(name, round(tok - tik, 2), out))
+        print(f"{name:<20}: {tok - tik:.3f}s")
 
 
-async def atest(name, make_sess, runner, num=2):
-    async with make_sess() as sess:
-        tik = monotonic()
-        for _ in range(num):
-            out = await runner(sess)
-        tok = monotonic()
-    print(TMP.format(name, round(tok - tik, 2), out))
+async def benchmark_async(name, sess, run_func):
+    tik = monotonic()
+    for _ in range(REPEAT):
+        tasks = [run_func(sess, n) for n in range(NUM_REQUESTS)]
+        await asyncio.gather(*tasks)
+    tok = monotonic()
+    print(f"{name:<20}: {tok - tik:.3f}s")
 
 
-def request_run(sess: requests.Session) -> bytes:
-    res = sess.get(URL)
-    return res.content
+def test_requests_sync():
+    def run(sess: requests.Session, num) -> bytes:
+        return sess.get(URL.format(num=num)).content
+
+    with requests.Session() as sess:
+        adapter = requests.adapters.HTTPAdapter(
+            pool_connections=NUM_REQUESTS, pool_maxsize=NUM_REQUESTS
+        )
+        sess.mount("http://", adapter)
+        sess.mount("https://", adapter)
+        benchmark_sync("Requests (Sync)", sess, run)
 
 
-def httpx_run(sess: httpx.Client) -> bytes:
-    res = sess.get(URL)
-    return res.content
+def test_httpx_sync():
+    def run(sess: httpx.Client, num) -> bytes:
+        return sess.get(URL.format(num=num)).content
+
+    with httpx.Client() as sess:
+        benchmark_sync("HTTPX (Sync)", sess, run)
 
 
-def urllib3_run(sess: urllib3.PoolManager) -> bytes:
-    res = sess.request("GET", URL)
-    return res.data
+def test_urllib3_sync():
+    def run(sess: urllib3.PoolManager, num) -> bytes:
+        return sess.request("GET", URL.format(num=num)).data
+
+    sess = urllib3.PoolManager(maxsize=NUM_REQUESTS)
+    benchmark_sync("Urllib3 (Sync)", sess, run)
 
 
-def niquest_run(sess: niquests.Session) -> bytes:
-    res = sess.get(URL)
-    return res.content
+def test_niquests_sync():
+    def run(sess: niquests.Session, num) -> bytes:
+        return sess.get(URL.format(num=num)).content
+
+    with niquests.Session(
+        pool_connections=NUM_REQUESTS, pool_maxsize=NUM_REQUESTS
+    ) as sess:
+        benchmark_sync("Niquests (Sync)", sess, run)
 
 
-def pycurl_run(sess: pycurl_requests.Session):
-    res = sess.get(URL)
-    return res.content
+def test_pycurl_sync():
+    def run(_, num) -> bytes:
+        sess = get_pycurl_session()
+        return sess.get(URL.format(num=num)).content
+
+    benchmark_sync("Pycurl-Req (Sync)", None, run)
 
 
-def geventcli_run(sess: geventhttpclient.Session):
-    res = sess.get(URL)
-    return res.data
+async def test_httpx_async():
+    async def run(sess: httpx.AsyncClient, num) -> bytes:
+        res = await sess.get(URL.format(num=num))
+        return res.content
+
+    async with httpx.AsyncClient() as sess:
+        await benchmark_async("HTTPX (Async)", sess, run)
 
 
-async def httpx_arun(sess: httpx.AsyncClient):
-    res = await sess.get(URL)
-    return res.content
+async def test_aiohttp_async():
+    async def run(sess: aiohttp.ClientSession, num) -> bytes:
+        async with sess.get(URL.format(num=num)) as res:
+            return await res.read()
+
+    async with aiohttp.ClientSession() as sess:
+        await benchmark_async("Aiohttp (Async)", sess, run)
 
 
-async def aiohttp_run(sess: aiohttp.ClientSession) -> bytes:
-    res = await sess.get(URL)
-    return await res.read()
+def main():
+    print(f"Benchmarking {NUM_REQUESTS} requests...")
+    # Run sync tests
+    test_requests_sync()
+    test_niquests_sync()
+    test_httpx_sync()
+    test_urllib3_sync()
+    test_pycurl_sync()
+
+    # Run async tests
+    asyncio.run(test_httpx_async())
+    asyncio.run(test_aiohttp_async())
 
 
-async def run():
-    test("req", requests.Session, request_run, NUM)
-    test("niquest", niquests.Session, niquest_run, NUM)
-    test("httpx", httpx.Client, httpx_run, NUM)
-    test("urllib3", urllib3.PoolManager, urllib3_run, NUM)
-    test("pycurl", pycurl_requests.Session, pycurl_run, NUM)
-    test("gevent-cli", geventhttpclient.Session, geventcli_run, NUM)
-    await atest("httpx-aio", httpx.AsyncClient, httpx_arun, NUM)
-    await atest("aiohttp", aiohttp.ClientSession, aiohttp_run, NUM)
-
-
-asyncio.run(run())
+if __name__ == "__main__":
+    main()
