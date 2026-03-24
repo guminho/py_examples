@@ -11,4 +11,3 @@ dependencies = [
 
 [tool.uv.workspace]
 members = ["*"]
-exclude = ["docli", "esearch"]

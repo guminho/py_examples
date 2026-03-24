@@ -3,7 +3,6 @@ from cli import client
 from elasticsearch import helpers
 
 IDX = "my-idx-abc"
-print(client.info())
 
 
 def ini():
