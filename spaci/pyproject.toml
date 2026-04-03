@@ -4,5 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 dependencies = [
+    "nltk>=3.9.4",
+    "scikit-learn>=1.8.0",
     "spacy>=3.8.13",
 ]
