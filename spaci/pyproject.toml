@@ -10,4 +10,5 @@ dependencies = [
     "pyvi>=0.1.1",
     "scikit-learn>=1.8.0",
     "spacy>=3.8.13",
+    "tantivy>=0.25.1",
 ]
