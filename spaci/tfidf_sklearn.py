@@ -50,7 +50,7 @@ queries = [
     "python backend",
     "machine learning with python",
     "how to use kubernetes",
-    "golang API",  # Not include in DB
+    "golang API",  # Not included in DB
 ]
 for q in queries:
     print(f"Query: '{q}'")

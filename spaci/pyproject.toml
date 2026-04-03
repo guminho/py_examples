@@ -4,7 +4,10 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 dependencies = [
+    "bm25s>=0.3.3",
     "nltk>=3.9.4",
+    "pystemmer>=3.0.0",
+    "pyvi>=0.1.1",
     "scikit-learn>=1.8.0",
     "spacy>=3.8.13",
 ]
