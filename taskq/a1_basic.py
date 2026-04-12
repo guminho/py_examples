@@ -1,4 +1,3 @@
-# broker.py
 import asyncio
 from time import monotonic
 
@@ -24,7 +23,7 @@ async def main() -> None:
     tik2 = monotonic()
     result = await task.wait_result(check_interval=0.1, timeout=2)
     if not result.is_err:
-        print(f"Returned value: {result.return_value}")
+        print(f"Returned value: {result.return_value!r}")
     else:
         print("Error found while executing task.")
 
@@ -33,11 +32,11 @@ async def main() -> None:
 
     tik4 = monotonic()
 
-    print(f"Broker startup took: {tik1 - tik0:.4f} seconds.")
-    print(f"Task creation took: {tik2 - tik1:.4f} seconds.")
-    print(f"Task result retrieval took: {tik3 - tik2:.4f} seconds.")
-    print(f"Broker shutdown took: {tik4 - tik3:.4f} seconds.")
-    print(f"Task execution took: {result.execution_time:.4f} seconds.")
+    print(f"Task execution took: {result.execution_time:.3f} seconds.")
+    print(f"Broker startup took: {tik1 - tik0:.3f} seconds.")
+    print(f"Task creation took: {tik2 - tik1:.3f} seconds.")
+    print(f"Task result retrieval took: {tik3 - tik2:.3f} seconds.")
+    print(f"Broker shutdown took: {tik4 - tik3:.3f} seconds.")
 
 
 if __name__ == "__main__":

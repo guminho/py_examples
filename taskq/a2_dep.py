@@ -1,4 +1,3 @@
-# broker.py
 import asyncio
 import random
 from typing import Annotated
@@ -6,11 +5,6 @@ from typing import Annotated
 from taskiq import InMemoryBroker, TaskiqDepends
 
 broker = InMemoryBroker()
-
-
-@broker.task
-async def add_one(value: int) -> int:
-    return value + 1
 
 
 def common_dep() -> int:
@@ -40,17 +34,8 @@ def my_task(
 async def main() -> None:
     await broker.startup()
 
-    task = await add_one.kiq(1)
-    result = await task.wait_result(timeout=2)
-    print(f"Task execution took: {result.execution_time} seconds.")
-    if not result.is_err:
-        print(f"Returned value: {result.return_value!r}")
-    else:
-        print("Error found while executing task.")
-
     task = await my_task.kiq()
     result = await task.wait_result(timeout=2)
-    print(f"Task execution took: {result.execution_time} seconds.")
     if not result.is_err:
         print(f"Returned value: {result.return_value!r}")
     else:

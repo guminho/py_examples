@@ -1,4 +1,3 @@
-# broker.py
 import asyncio
 from typing import Annotated
 
@@ -33,7 +32,7 @@ async def add_op(
     b: int,
     context: Annotated[Context, TaskiqDepends()],
 ) -> tuple[str, int]:  # type cast
-    await asyncio.sleep(0.2)
+    await asyncio.sleep(0.1)
     return context.state.mykey, str(a + b)
 
 
