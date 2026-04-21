@@ -1,11 +1,11 @@
 from contextlib import asynccontextmanager
 
 import redis_client
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 
 # Stream configuration
 STREAM_NAME = "mystream"
-MAX_CAPACITY = 50
+MAX_CAPACITY = 10
 
 
 @asynccontextmanager
@@ -18,11 +18,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Redis Stream Producer", lifespan=lifespan)
 
 
-@app.get("/")
-async def root():
-    return {"message": "Producer is running"}
-
-
 @app.post("/send")
 async def send_message(message: str):
     """
@@ -30,18 +25,15 @@ async def send_message(message: str):
     """
     r = redis_client.get()
 
-    try:
-        # XADD with approximate trimming (~) for better performance
-        # Using '*' to auto-generate the ID
-        entry_id = await r.xadd(
-            STREAM_NAME,
-            {"content": message},
-            maxlen=MAX_CAPACITY,
-            approximate=True,
-        )
-        return {"status": "sent", "id": entry_id, "message": message}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    # XADD with approximate trimming (~) for better performance
+    # Using '*' to auto-generate the ID
+    entry_id = await r.xadd(
+        STREAM_NAME,
+        {"content": message},
+        maxlen=MAX_CAPACITY,
+        approximate=True,
+    )
+    return {"status": "sent", "id": entry_id, "message": message}
 
 
 if __name__ == "__main__":
