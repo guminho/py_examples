@@ -35,9 +35,9 @@ async def main():
 
     # On the first pass read the backlog (pending messages for this consumer,
     # e.g. from a previous crash). Once the backlog is empty, switch to ">".
-    check_backlog = True
     last_id = "0-0"
-    print(f"[{CONSUMER_NAME}] Entering pending recovery state...")
+    check_backlog = True
+    print(f"[{CONSUMER_NAME}] Starting...")
 
     try:
         while True:
@@ -51,25 +51,20 @@ async def main():
                 block=2000,
             )
 
-            if items is None:
+            if not items:
                 continue  # block timeout, loop again
 
             _, messages = items[0]
 
             if len(messages) == 0:
                 # Empty reply during backlog scan means history is exhausted.
-                print(f"[{CONSUMER_NAME}] No pending messages. Listening...")
                 check_backlog = False
                 continue
 
-            if check_backlog:
-                print(f"[{CONSUMER_NAME}] Recovering {len(messages)} pending message(s)...")
-
-            for message_id, data in messages:
-                await process_message(message_id, data)
-                await r.xack(STREAM_NAME, GROUP_NAME, message_id)
-                print(f"[{CONSUMER_NAME}] Acknowledged message {message_id}")
-                last_id = message_id
+            for msg_id, data in messages:
+                await process_message(msg_id, data)
+                await r.xack(STREAM_NAME, GROUP_NAME, msg_id)
+                last_id = msg_id
 
     except asyncio.CancelledError:
         print(f"[{CONSUMER_NAME}] Stopping...")
