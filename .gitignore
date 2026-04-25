@@ -134,3 +134,4 @@ KEY.pub
 torchsrv/model-store
 tritonsrv/model_repository
 uv.lock
+vec/lance_*/
