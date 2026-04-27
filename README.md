@@ -18,6 +18,10 @@ A curated collection of Python examples and architectural patterns, ranging from
 | **AI/ML Serving** | TorchServe and Triton Inference Server | [TorchServe](torchsrv/), [Triton](tritonsrv/) |
 | **Observability** | Prometheus metrics integration | [Prometheus](prom/) |
 | **CLI Tools** | Documentation and search utilities | [Docli](docli/), [Esearch](esearch/) |
+| **Vector DB** | Top in-process vector engine comparison (2026) | [Vec](vec/README.md) |
+| **Speech-to-Text** | Azure Speech-to-Text SDK examples | [Azure STT](azure-stt/) |
+| **Streaming** | Redis Streams with FastAPI and asyncio | [Redstream](redstream/) |
+| **HTTP Clients** | Comparison of Python HTTP request libraries | [Requestx](requestx/) |
 
 ---
 
