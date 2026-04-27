@@ -3,7 +3,7 @@ from lancedb.embeddings import get_registry
 from lancedb.pydantic import LanceModel, Vector
 
 func = get_registry().get("sentence-transformers").create(name="all-MiniLM-L6-v2")
-db = lancedb.connect("./lance_st")
+db: lancedb.LanceDBConnection = lancedb.connect("./lance_st")
 
 
 class Chunks(LanceModel):
@@ -11,7 +11,7 @@ class Chunks(LanceModel):
     vector: Vector(func.ndims()) = func.VectorField()
 
 
-table = db.create_table("chunks", schema=Chunks, mode="overwrite")
+table = db.create_table("chunks", schema=Chunks.to_arrow_schema(), mode="overwrite")
 table.add(
     [
         {"text": "LanceDB is great for local dev"},
