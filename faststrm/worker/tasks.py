@@ -1,4 +1,4 @@
-from logging import Logger
+from faststream import Logger
 
 from faststream.redis import StreamSub
 
