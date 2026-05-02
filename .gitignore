@@ -135,3 +135,4 @@ torchsrv/model-store
 tritonsrv/model_repository
 uv.lock
 vec/lance_*/
+faststrm/asyncapi.json
