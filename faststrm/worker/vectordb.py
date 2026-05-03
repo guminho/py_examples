@@ -26,7 +26,15 @@ def connect_db() -> lancedb.DBConnection:
 def get_or_create_table(db: lancedb.DBConnection) -> lancedb.table.Table:
     if TABLE_NAME in db.table_names():
         return db.open_table(TABLE_NAME)
-    return db.create_table(TABLE_NAME, schema=MdChunk)
+    table = db.create_table(TABLE_NAME, schema=MdChunk)
+    # Khởi tạo FTS index ngay khi tạo table
+    table.create_fts_index("text", replace=True)
+    return table
+
+
+def create_fts_index(table: lancedb.table.Table):
+    """Tạo hoặc cập nhật Full-Text Search index trên cột 'text'."""
+    table.create_fts_index("text", replace=True)
 
 
 def hash_exists(table: lancedb.table.Table, file_hash: str) -> bool:

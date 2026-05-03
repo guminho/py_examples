@@ -1,41 +1,57 @@
-# faststrm
+# FastStream + LanceDB Markdown RAG
 
-FastAPI + FastStream example using Redis Streams.
+A lightweight RAG (Retrieval-Augmented Generation) pipeline for Markdown files using FastAPI, FastStream (Redis), and LanceDB.
 
-## Prerequisites
+## 🚀 Quick Start
 
-- Python 3.13+
-- Redis running on `localhost:6379`
+1. **Install Dependencies**:
+   ```bash
+   uv sync
+   ```
 
-## Install
+2. **Start the Worker** (Processes uploads, chunks markdown, and indexes vectors):
+   ```bash
+   cd faststrm
+   faststream run worker_app:app
+   ```
 
+3. **Start the Server** (FastAPI publisher and search API):
+   ```bash
+   cd faststrm
+   uvicorn server_app:app
+   ```
+
+## 🛠 API Usage Examples
+
+### 1. Upload a Markdown File
+Uploads a file, saves it to disk, and triggers the ingest background task.
 ```bash
-uv sync
+curl -X POST http://localhost:8000/upload \
+  -F "file=@path/to/your-file.md"
 ```
 
-## Run
-
-Start the worker and server in separate terminals:
-
+### 2. Hybrid Search
+Performs a hybrid search (Vector + Full-Text Search) with optional filename filtering.
 ```bash
-# Terminal 1 — worker (consumes from Redis streams)
-faststream run worker_app:app
-
-# Terminal 2 — server (FastAPI HTTP publisher)
-uvicorn server_app:app
-```
-
-## Usage
-
-```bash
-curl -s -X POST http://localhost:8000/send \
+curl -X POST http://localhost:8000/search \
   -H "Content-Type: application/json" \
-  -d '{"user_name": "mera", "user_id": 15}'
+  -d '{
+    "query": "what is a subagent",
+    "limit": 3
+  }'
 ```
 
-## AsyncAPI Docs
-
+### 3. Search with Filename Filter
+Limit the search results to a specific document.
 ```bash
-faststream docs gen worker_app:app
-faststream docs serve asyncapi.json
+curl -X POST http://localhost:8000/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "context engineering",
+    "filename": "deepa-context-engineering.md",
+    "limit": 2
+  }'
 ```
+
+## 📖 Documentation
+For a deep dive into the system design and how to recreate this project from scratch, see [ARCHITECTURE.md](./ARCHITECTURE.md).

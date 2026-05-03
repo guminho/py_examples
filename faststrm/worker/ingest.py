@@ -8,7 +8,7 @@ from worker.broker import broker
 from worker.chunker import chunk_markdown
 from worker.constants import CONSUMER_NAME, INGEST_GROUP, INGEST_STREAM
 from worker.models import IngestMessage
-from worker.vectordb import add_chunks, hash_exists
+from worker.vectordb import add_chunks, create_fts_index, hash_exists
 
 
 @broker.subscriber(
@@ -41,4 +41,10 @@ async def handle_ingest(
 
     # 4. Insert into LanceDB (embedding is handled automatically by LanceDB + FastEmbed)
     count = add_chunks(md_chunks_table, docs, msg.filename, msg.file_hash)
-    logger.info(f"✅ Ingested {count} chunks for '{msg.filename}' into LanceDB")
+
+    # 5. Rebuild FTS index for hybrid search
+    create_fts_index(md_chunks_table)
+
+    logger.info(
+        f"✅ Ingested {count} chunks for '{msg.filename}' into LanceDB (FTS Index updated)"
+    )

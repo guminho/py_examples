@@ -1,44 +1,47 @@
-# Markdown Ingest Pipeline Architecture
+# Architecture & Implementation Guide
 
-Hệ thống xử lý ingest file Markdown tự động, sử dụng kiến trúc Producer-Consumer (FastAPI + FastStream).
+Tài liệu này hướng dẫn cách tái tạo (replay) toàn bộ hệ thống từ con số 0.
 
-## 1. Dòng dữ liệu (Data Flow)
+## 1. Core Stack
+- **Framework**: FastAPI (HTTP), FastStream (Redis Streams).
+- **Vector DB**: LanceDB (File-based).
+- **Embedding**: FastEmbed (Model: `BAAI/bge-small-en-v1.5`).
+- **Chunking**: LangChain `MarkdownHeaderTextSplitter` & `RecursiveCharacterTextSplitter`.
 
-1. **Client**: Upload file `.md` qua `POST /upload`.
-2. **FastAPI (Producer)**:
-   - Kiểm tra trùng tên file trên disk (`409 Conflict`).
-   - Lưu file vào `./data/uploads/`.
-   - Tính SHA-256 hash của nội dung file.
-   - Gửi message chứa `file_path`, `file_hash`, và `filename` vào Redis Stream `ingest-stream`.
-3. **FastStream Worker (Consumer)**:
-   - Nhận task từ Redis.
-   - Kiểm tra `file_hash` trong LanceDB (Skip nếu đã tồn tại).
-   - Đọc file từ shared disk.
-   - **Chunking (2 giai đoạn)**:
-     - GĐ 1: Tách theo Headers (`#`, `##`, `###`) để giữ ngữ cảnh.
-     - GĐ 2: Tách nhỏ các section quá dài (Max 2000 chars ~ 500 tokens).
-   - **Embedding**: Sử dụng `FastEmbed` (model `BAAI/bge-small-en-v1.5`) tích hợp trực tiếp vào LanceDB.
-   - **Storage**: Lưu vào LanceDB table `md_chunks`.
+## 2. LanceDB Schema (MdChunk)
+Đây là phần quan trọng nhất để đồng bộ giữa Ingest và Search:
 
-## 2. Quyết định kỹ thuật (Technical Decisions)
-
-| Thành phần | Lựa chọn | Lý do |
+| Field | Type | Role |
 | :--- | :--- | :--- |
-| **Giao tiếp** | Redis Streams | Hỗ trợ Consumer Groups, đảm bảo không mất task nếu worker sập. |
-| **File Transfer** | Shared Disk | Tiết kiệm băng thông Redis vì worker và server chạy cùng host. |
-| **Xử lý trùng** | Filename (Disk) & Hash (DB) | Tránh ghi đè file lung tung và tránh tốn tài nguyên embed lại nội dung cũ. |
-| **Embedding** | FastEmbed | Cực nhẹ, không cần PyTorch/Tensorflow, phù hợp cho môi trường serve. |
-| **Vector DB** | LanceDB | Dạng file-based (Lance format), tốc độ scan cực nhanh, không cần setup server DB phức tạp. |
+| `text` | `str` | **SourceField**: Chứa nội dung text và là input cho FTS. |
+| `vector` | `Vector(384)` | **VectorField**: Lưu embedding được auto-generate bởi FastEmbed. |
+| `filename` | `str` | Tên file để filter và quản lý conflict. |
+| `file_hash` | `str` | SHA-256 nội dung file để tránh ingest trùng nội dung. |
+| `h1`, `h2`, `h3` | `str` | Lưu cấu trúc header của Markdown để tạo breadcrumb path. |
 
-## 3. LanceDB Schema (Table: `md_chunks`)
+## 3. Quy trình Ingest (Pipeline)
+1. **Validation**: Server nhận file `.md`, kiểm tra trùng tên file trên disk (trả về `409 Conflict`).
+2. **Hashing**: Tính SHA-256 nội dung file.
+3. **Transfer**: Lưu file vào `./data/uploads/`, gửi message {path, hash, filename} qua Redis.
+4. **Worker Processing**:
+   - Check duplicate hash trong LanceDB (Skip nếu trùng).
+   - **2-Stage Chunking**:
+     - B1: Split theo `#`, `##`, `###` (LangChain).
+     - B2: Split tiếp các đoạn dài bằng `RecursiveCharacterTextSplitter` (chunk_size=2000 chars, overlap=400 chars).
+   - **Indexing**: Sau khi `table.add()`, bắt buộc gọi `table.create_fts_index("text")` để cập nhật Full-Text Search index.
 
-- `text`: Nội dung chunk (Source field).
-- `vector`: Vector 384-dim (Auto-generated).
-- `filename`: Tên file gốc.
-- `file_hash`: SHA-256 để kiểm soát duplicate.
-- `h1`, `h2`, `h3`: Metadata header để tái tạo cấu trúc tài liệu khi cần.
+## 4. Quy trình Search (Retrieval)
+Hệ thống sử dụng **Hybrid Search (Native LanceDB way)**:
+- **Auto-Embedding**: Server không cần tự tính vector, chỉ cần truyền string query vào `table.search(text)`. LanceDB sẽ dùng chính `FastEmbedFunc` đã khai báo trong schema để embed query.
+- **RRF (Reciprocal Rank Fusion)**: Kết hợp kết quả từ Vector search và Keyword search.
+- **Filtering**: Hỗ trợ filter theo `filename` qua clause `.where()`.
+- **Breadcrumb**: UI path được xây dựng bằng cách nối `h1 > h2 > h3`.
 
-## 4. Cấu hình Chunking
-- **Chunk Size**: 2000 ký tự (~500 tokens).
-- **Chunk Overlap**: 400 ký tự (~100 tokens).
-- **Splitter**: `MarkdownHeaderTextSplitter` + `RecursiveCharacterTextSplitter`.
+## 5. Cấu trúc thư mục dữ liệu
+- `./data/uploads/`: Lưu trữ file markdown gốc.
+- `./data/lancedb/`: Lưu trữ các file dữ liệu của LanceDB (bao gồm cả các index).
+
+## 6. Lưu ý khi Recreate
+- Phải dùng chung một model name (`BAAI/bge-small-en-v1.5`) ở mọi nơi.
+- Đảm bảo `tantivy` đã được cài đặt (thường đi kèm `lancedb`) để FTS hoạt động.
+- Khi schema thay đổi, nên xóa thư mục `./data/lancedb` để khởi tạo lại từ đầu.
