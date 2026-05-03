@@ -1,8 +1,9 @@
-from threading import Thread
 import logging
-import schedule
 import time
 from datetime import datetime
+from threading import Thread
+
+import schedule
 
 
 def fun1():

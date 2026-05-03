@@ -6,7 +6,12 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.135.2",
+    "fastembed>=0.7.3",
     "faststream[cli,redis]>=0.6.7",
+    "lancedb>=0.30.2",
+    "langchain-text-splitters>=1.1.2",
+    "pyarrow>=23.0.1",
+    "python-multipart>=0.0.27",
     "uvicorn[standard]>=0.42.0",
 ]
 

@@ -10,7 +10,7 @@ FastAPI + FastStream example using Redis Streams.
 ## Install
 
 ```bash
-pip install -e .
+uv sync
 ```
 
 ## Run
@@ -37,4 +37,5 @@ curl -s -X POST http://localhost:8000/send \
 
 ```bash
 faststream docs gen worker_app:app
+faststream docs serve asyncapi.json
 ```

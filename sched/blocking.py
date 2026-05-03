@@ -1,7 +1,8 @@
 import logging
-import schedule
 import time
 from datetime import datetime
+
+import schedule
 
 
 def fun1():

@@ -6,4 +6,8 @@ GOODBYE_STREAM = "goodbye-stream"
 
 GREETING_GROUP = "greeting-group"
 GOODBYE_GROUP = "goodbye-group"
+
+INGEST_STREAM = "ingest-stream"
+INGEST_GROUP = "ingest-group"
+
 CONSUMER_NAME = os.environ.get("CONSUMER_NAME", f"consumer-{uuid4().hex[:8]}")

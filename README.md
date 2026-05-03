@@ -21,6 +21,7 @@ A curated collection of Python examples and architectural patterns, ranging from
 | **Vector DB** | Top in-process vector engine comparison (2026) | [Vec](vec/README.md) |
 | **Speech-to-Text** | Azure Speech-to-Text SDK examples | [Azure STT](azure-stt/) |
 | **Streaming** | Redis Streams with FastAPI and asyncio | [Redstream](redstream/) |
+| **Messaging** | FastAPI + FastStream with Redis Streams | [Faststrm](faststrm/README.md) |
 | **HTTP Clients** | Comparison of Python HTTP request libraries | [Requestx](requestx/) |
 
 ---

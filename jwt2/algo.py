@@ -10,12 +10,10 @@ class Algo(abc.ABC):
     name: str = None
 
     @abc.abstractmethod
-    def sign(self, message: bytes, key: bytes) -> bytes:
-        ...
+    def sign(self, message: bytes, key: bytes) -> bytes: ...
 
     @abc.abstractmethod
-    def verify(self, signature: bytes, message: bytes, key: bytes):
-        ...
+    def verify(self, signature: bytes, message: bytes, key: bytes): ...
 
 
 class HS256(Algo):

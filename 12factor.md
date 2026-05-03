@@ -33,7 +33,7 @@ A guide to building modern, scalable, and maintainable Python applications follo
 **Strictly separate build and run stages.**
 - **Build:** `uv lock` + Dockerfile. The result is an immutable artifact (Docker Image).
 - **Release:** The Image combined with specific environment variables (Config).
-- **Run:** The execution of the container. 
+- **Run:** The execution of the container.
 - **Immutable Rule:** Never "hot-fix" code directly on a server. Every change must go through the Build -> Release -> Run pipeline.
 
 ## 6. Processes
@@ -55,7 +55,7 @@ A guide to building modern, scalable, and maintainable Python applications follo
 
 ## 9. Disposability
 **Maximize robustness with fast startup and graceful shutdown.**
-- **Startup:** Keep the app's initialization logic lean. 
+- **Startup:** Keep the app's initialization logic lean.
 - **Shutdown:** Catch `SIGTERM` signals to close database connections and finish processing current requests before the process exits.
 
 ## 10. Dev/Prod Parity
@@ -65,8 +65,8 @@ A guide to building modern, scalable, and maintainable Python applications follo
 
 ## 11. Logs
 **Treat logs as event streams.**
-- **No Log Files:** Do not write to `/var/log`. 
-- **Standard Out:** Use the standard Python `logging` module to write to `stdout`. 
+- **No Log Files:** Do not write to `/var/log`.
+- **Standard Out:** Use the standard Python `logging` module to write to `stdout`.
 - **Infrastructure:** Let your log aggregator (ELK stack, Datadog, CloudWatch) capture the stream from the container's output.
 
 ## 12. Admin Processes

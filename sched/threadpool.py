@@ -1,8 +1,9 @@
-from concurrent.futures import ThreadPoolExecutor
 import logging
-import schedule
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
+
+import schedule
 
 
 def fun1():
