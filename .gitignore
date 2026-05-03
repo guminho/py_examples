@@ -136,3 +136,5 @@ tritonsrv/model_repository
 uv.lock
 vec/lance_*/
 faststrm/asyncapi.json
+my_faststream_app/
+faststrm/data/
